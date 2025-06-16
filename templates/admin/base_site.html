@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_interface_tags %}
+
+{% block title %}
+{% get_admin_interface_theme as theme %}
+{% if title %}{{ title }} | {% endif %}{{site_title}}
+{% endblock %}
+
+{% block branding %}
+{% get_admin_interface_theme as theme %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        {% if theme.logo_visible %}
+            {% if theme.logo %}
+            <img class="logo" style="display:none;" src="{{ theme.logo.url }}" {% if theme.logo.width %}width="{{ theme.logo.width }}"{% endif %} {% if theme.logo.height %}height="{{ theme.logo.height }}"{% endif %}>
+            {% else %}
+            <img class="logo default" style="display:none;" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="104" height="36">
+            {% endif %}
+        {% endif %}
+        {% if theme.title_visible %}
+        <span>{{site_title}}</span>
+        {% endif %}
+    </a>
+</h1>
+{% endblock %}

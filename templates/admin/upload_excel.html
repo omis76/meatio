@@ -1,0 +1,86 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrastyle%}
+{{ block.super }}
+<style>
+    .input-form{
+        display: flex;
+        justify-content: center;
+    }
+    .ex-format {
+        margin: 20px 0;
+    }
+    form{
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content_title %}
+{% if title %}<h1>{{ title | safe }}</h1>{% endif %}
+{% endblock %}
+
+
+{% block content %}
+<div class="input-form">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table class="ex-format">
+            {{ form.as_table }}
+        </table>
+        <input type="submit" value="Upload">
+        <h2>Format of {{file_type}} to be uploaded here:</h2>
+        <br>
+        {{ sample_table | safe }}
+        <br>
+        {% if not block_manual_download %}
+        <button type="button" id="download-button" style="all:revert" class="grp-add-link grp-state-focus">
+            Download Sample CSV
+        </button>
+        {% endif %}
+
+        <p style="color:red;font-weight:bold;">
+            ** Please make sure you use the same header for column headings in the excel
+            <br><br>
+            {{ footer | safe }}
+        </p>
+        <br><br>
+        <p style="color:red;font-size:1.5rem;">{{ error }}</p>
+        {{ erroneous_table | safe }}
+    </form>
+</div>
+
+<script type="text/javascript">
+    function downloadCSVFile(csv, filename) {
+        var csv_file, download_link;
+        csv_file = new Blob([csv], {type: "text/csv"});
+        download_link = document.createElement("a");
+        download_link.download = filename;
+        download_link.href = window.URL.createObjectURL(csv_file);
+        download_link.style.display = "none";
+        document.body.appendChild(download_link);
+        download_link.click();
+    }
+    function htmlToCSV(html, filename) {
+        var data = [];
+        var rows = document.querySelectorAll(".dataframe tr");;
+
+        for (var i = 0; i < rows.length; i++) {
+            var row = [], cols = rows[i].querySelectorAll("td, th");
+            for (var j = 0; j < cols.length; j++) {
+                row.push(cols[j].innerText);
+            }
+            //to remove table heading
+            //data.shift()
+
+            data.push(row.join(","));
+        }
+        downloadCSVFile(data.join("\n"), filename);
+    }
+    document.getElementById("download-button").addEventListener("click", function () {
+		    var html = document.querySelector("table").outerHTML;
+			htmlToCSV(html, "{{title | safe}}_sample.csv");
+    });
+</script>
+{% endblock %}

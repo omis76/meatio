@@ -1,0 +1,43 @@
+body {
+    background-color: lightgrey;
+}
+
+.ex-format {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  margin: 20px;
+}
+
+.ex-format td, .ex-format th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.ex-format tr:nth-child(even){background-color: #f2f2f2;}
+
+.ex-format tr:hover {background-color: #ddd;}
+
+.ex-format th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #5aa567;
+  color: white;
+}
+
+.ex-format th a {
+    color: #2405f9;
+}
+
+.ex-format th a:hover {
+    font-size:1.05em;
+}
+
+.input-form {
+    display: flex;
+    justify-content: center;
+}
+
+form {
+    text-align: center;
+}

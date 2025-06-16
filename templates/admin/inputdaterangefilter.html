@@ -1,0 +1,102 @@
+{% load i18n %}
+
+<!--<link href="/media/css/ui-lightness/jquery-ui-1.8.19.custom.css" rel="stylesheet" type="text/css"/>-->
+<!--<script src="/media/js/jquery/jquery-min.js"></script>-->
+<!--<script src="/media/js/jquery/jquery-ui-1.8.19.custom.min.js"></script>-->
+
+<script>
+
+        $(function() {
+            var sPageURL = window.location.search.substring(1);
+                var sURLVariables = sPageURL.split('&');
+                for (var i = 0; i < sURLVariables.length; i++)
+                {
+                    var sParameterName = sURLVariables[i].split('=');
+                    if (sParameterName[0] == 'doj__gte')
+                    {
+                     $( "#doj__gte" ).val(sParameterName[1])
+                     }
+                     if (sParameterName[0] == 'doj__lte')
+                    {
+                     $( "#doj__lte" ).val(sParameterName[1])
+                     }
+                }});
+
+    function applyDateFilters() {
+
+        qs = location.search;
+
+        if (qs.charAt(0) == '?') qs = qs.substring(1);
+
+        var qsComponents = qs.split(/[&;]/g);
+
+        new_qs = [];
+        for (var index = 0; index < qsComponents.length; index ++){
+
+            var keyValuePair = qsComponents[index].split('=');
+            var key          = keyValuePair[0];
+            var value        = keyValuePair[1];
+
+            if(key == 'doj__gte' || key == 'doj__lte' || key == '') {
+                continue;
+            } else {
+                new_qs[index] = key + '=' + value;
+            }
+        }
+
+        if($( "#doj__gte" ).val() != '') {
+            new_qs[new_qs.length] = 'doj__gte=' + $( "#doj__gte" ).val();
+        }
+        if($( "#doj__lte" ).val() != '') {
+            new_qs[new_qs.length] = 'doj__lte=' + $( "#doj__lte" ).val();
+        }
+
+        window.location = '?' + new_qs.join("&").replace("&&", "&");
+    }
+
+    function reset_date_native() {
+          var date_input = document.getElementById('doj__gte');
+
+          //erase the input value
+          date_input.value = '';
+
+          //prevent error on older browsers (aka IE8)
+          if (date_input.type === 'date') {
+            //update the input content (visually)
+            date_input.type = 'text';
+            date_input.type = 'date';
+          }
+
+          var date_input1 = document.getElementById('doj__lte');
+          date_input1.value = '';
+
+          if (date_input1.type === 'date') {
+            date_input1.type = 'text';
+            date_input1.type = 'date';
+          }
+          applyDateFilters()
+        }
+</script>
+<p style="padding-left: 10px;margin: 0px;">{% blocktrans with filter_title=title %}{{ filter_title }} {% endblocktrans %}</p>
+    <ul style="padding-top:1%;border-bottom:None;">
+        <li>
+            <div id="changelist-filter">
+            <h3></h3>
+                      <div>
+                            <p style="padding-left: 10px;">
+                            From <br /><input type="date" id="doj__gte" value="{{ doj__gte| default:'' }}" style="border-radius: 5px;border: 1px solid #ccc;padding: 5px 5px;background-color: #ccca;max-width: 131px;" size="15"><br />
+                            To <br /><input type="date" id="doj__lte" value="{{ doj__lte|default:'' }}" style="border-radius: 5px;border: 1px solid #ccc;padding: 5px 5px;background-color: #ccca;max-width: 131px;" size="15">
+                            </p>
+                            <div style="padding-left: 10px;">
+                              <ul >
+                                <li><a href="#" onclick="javascript:applyDateFilters();">Search</a>&nbsp; &nbsp; &nbsp;
+                                    &nbsp; <a href="#" onclick="javascript:reset_date_native();">Reset</a>
+                                </li>
+                              </ul>
+
+                            </div>
+                      </div>
+            </div>
+        </li>
+    </ul>
+<br>

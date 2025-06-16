@@ -1,0 +1,41 @@
+{% extends "admin/base_site.html" %}
+{% block extrastyle %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+{% endblock %}
+{% block content %}
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" title="Upload excel file" name="excel_file" style="border: 1px solid black; padding: 5px;" required="required">
+        <input type="hidden" name="action" value="process_excel" /><br>
+        <input type="submit" value="Upload" style="border: 1px solid green; padding:5px; border-radius: 2px; cursor: pointer;">
+    </form>
+
+    {% for row in excel_data %}
+        {% for cell in row %}
+            {{ cell }}&nbsp;&nbsp;
+        {% endfor %}
+        <br>
+    {% endfor %}
+    <br><br>
+    <table style="width:100%">
+      <tr>
+       {% for header in excel_format.0 %}
+        <th>{{header}}</th>
+        {% endfor %}
+      </tr>
+      <tr>
+       {% for data in excel_format.1 %}
+        <td>{{data}}</td>
+        {% endfor %}
+      </tr>
+     </table>
+
+<br>
+{% if error %}
+<div class="alert alert-danger">
+    <strong>{{error}}</strong>
+</div>
+{% endif %}
+{% endblock %}
+
+

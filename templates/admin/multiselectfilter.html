@@ -1,0 +1,85 @@
+{% load i18n %}
+
+<!--<script type="text/javascript">var go_from_select = function(opt) { window.location = window.location.pathname + opt };</script>-->
+<h3>{{ title }}</h3>
+<h3>{{ lookup_kwarg }}</h3>
+
+<ul class="admin-filter-{{ title|cut:' ' }}">
+{% if choices|slice:"1:" %}
+    <li>
+    <select multiple style="width: 95%;" class="admin-filter-{{ title|cut:' ' }}-select">
+<!--    onchange="go_from_select(this.options[this.selectedIndex].value)">-->
+    {% for choice in choices %}
+        <option {% if choice.selected %} selected="selected"{% endif %}
+         value="{{ choice.query_string|iriencode }}" >{{ choice.display }}</option>
+    {% endfor %}
+    </select>
+    </li>
+{% else %}
+    {% for choice in choices %}
+            <li {% if choice.selected %} class="selected"{% endif %}>
+            <a href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a></li>
+    {% endfor %}
+{% endif %}
+<input id="subm_{{ title }}" type="submit" class="btn_{{ title }}" value="Go"
+       style="text-align: center; display: inline-block; font-size:15px; padding: 5px 10px;">
+</ul>
+
+{% block extrascripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        {% with choice=choices|first %}
+            $(document).ready(function(){
+              $("#subm_{{ title }}").click(function(){
+                  let select = document.getElementsByClassName('admin-filter-{{ title|cut:' ' }}-select')[0],
+                      options = select.options,
+                      len = options.length,
+                      data=options[0].value,
+                      i=0,
+                      regex = /{{ choice.lookup }}=(\w+)&?/,
+                      flag=true;
+                  while(i < len){
+                      if(options[i].selected)
+                      {
+                          if(i===0){ break;}
+                          let actual_val = regex.exec(options[i].value)[1];
+                          if(flag){
+                              data += '&{{ choice.lookup }}=' + actual_val;
+                              flag = false;
+                              }
+                          else{
+                              data += '%2C' + actual_val;
+                              }
+                      }
+                      i += 1;
+                  }
+                  window.location = window.location.pathname + data;
+              });
+            });
+
+            $('.admin-filter-{{ title|cut:' ' }}-select option').on('mousedown', function(e) {
+                var $this = $(this),
+                    that = this,
+                    scroll = that.parentElement.scrollTop;
+
+                e.preventDefault();
+                $this.prop('selected', !$this.prop('selected'));
+
+                setTimeout(function() {
+                    that.parentElement.scrollTop = scroll;
+                }, 0);
+
+            return false;
+        });
+
+         $('.admin-filter-{{ title|cut:' ' }}-select').on('change', function() {
+            let selected = $('.admin-filter-{{ title|cut:' ' }}-select').find('option:selected');
+            if(selected.length > 1 && selected[0].label==='All')
+            {
+                selected[0].selected=false;
+            }
+        });
+
+        {% endwith %}
+    </script>
+{% endblock %}

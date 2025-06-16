@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .input-form form {
+        text-align: center;
+    }
+    .input-form {
+        display: flex;
+        justify-content: center;
+    }
+    .ex-format {
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content_title %}
+{% if title %}<h1>{{ title | safe }}</h1>{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="input-form">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table class="ex-format">
+            {{ form.as_table }}
+        </table>
+        <input type="submit" value="Submit">
+        <p style="color:red;font-weight:bold;">
+            {{ footer | safe }}
+        </p>
+    </form>
+    <p style="color:red;font-size:1.5rem;">{{ error | safe }}</p>
+</div>
+{% endblock %}

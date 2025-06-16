@@ -1,0 +1,87 @@
+<!-- templates/admin/input_prices.html -->
+
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+<h1>Input Prices for transfer: <b>{{ transfer_uid }}</b></h1>
+
+<form method="post">
+  {% csrf_token %}
+  <p style="color:red" > **Price input is allowed only upto two decimal points </p> <br>
+  <table style="width: 100%; margin: 0 auto; border-collapse: collapse; border: 1px solid #ddd">
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transfer_product in transfer_products %}
+      <tr class="{% cycle 'even-row' 'odd-row' %}">
+        <td>{{ transfer_product.product.name }}</td>
+        <td>{{ transfer_product.quantity }}</td>
+        <td>
+          <input type="number" name="{{ transfer_product.product.id }}"
+                   class="price-input" data-quantity="{{ transfer_product.quantity }}" step="0.01"
+                 oninput="restrictDecimal(this)" required>
+        </td>
+        <td class="total-amount">0.00</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <br>
+  <button type="submit" class="button button-primary" style="padding: 8px 18px; float: right;">Submit</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const priceInputs = document.querySelectorAll('.price-input');
+
+    priceInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const quantity = parseFloat(this.dataset.quantity);
+            const price = parseFloat(this.value);
+            const totalAmountElem = this.closest('tr').querySelector('.total-amount');
+
+            if (!isNaN(quantity) && !isNaN(price)) {
+                const totalAmount = quantity * price;
+                totalAmountElem.textContent = totalAmount.toFixed(2);
+            } else {
+                totalAmountElem.textContent = '0.00';
+            }
+        });
+    });
+});
+
+
+function restrictDecimal(input) {
+  // Convert the input value to a string
+  let value = input.value.toString();
+
+  // Find the position of the decimal point
+  const decimalIndex = value.indexOf('.');
+
+  // If there is a decimal point and the number of digits after it exceeds 2, truncate it
+  if (decimalIndex !== -1 && value.length - decimalIndex - 1 > 2) {
+      input.value = value.substring(0, decimalIndex + 3); // Keep only 2 decimal places
+  }
+}
+</script>
+
+<style>
+.even-row {
+    background-color: #f9f9f9;
+}
+
+.odd-row {
+    background-color: #ffffff;
+}
+
+table td {
+    padding: 10px;
+}
+</style>
+{% endblock %}

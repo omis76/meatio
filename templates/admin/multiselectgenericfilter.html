@@ -1,0 +1,123 @@
+{% load i18n %}
+
+<!--<script type="text/javascript">var go_from_select = function(opt) { window.location = window.location.pathname + opt };</script>-->
+<h3>{{ title }}</h3>
+<h3>{{ lookup_kwarg }}</h3>
+
+<ul class="admin-filter-{{ title|cut:' ' }}">
+{% if choices|slice:"1:" %}
+    <li>
+    <select multiple style="width: 95%;" class="admin-filter-{{ title|cut:' ' }}-select">
+<!--    onchange="go_from_select(this.options[this.selectedIndex].value)">-->
+    {% for choice in choices %}
+        <option {% if choice.selected %} selected="selected"{% endif %}
+         value="{{ choice.query_string|iriencode }}" >{{ choice.display }}</option>
+    {% endfor %}
+    </select>
+    </li>
+{% else %}
+    {% for choice in choices %}
+            <li {% if choice.selected %} class="selected"{% endif %}>
+            <a href="{{ choice.query_string|iriencode }}">{{ choice.display }}</a></li>
+    {% endfor %}
+{% endif %}
+<input id="subm_{{ title }}" type="submit" class="btn_{{ title }}" value="Go"
+       style="text-align: center; display: inline-block; font-size:15px; padding: 5px 10px;">
+</ul>
+
+{% block extrascripts %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        {% with choice=choices|first %}
+            $(document).ready(function(){
+                $("#subm_{{ title|cut:' ' }}").prop('disabled', false);
+              $("#subm_{{ title|cut:' ' }}").click(function(){
+                let select = document.getElementsByClassName('admin-filter-{{ title|cut:' ' }}-select')[0];
+                let options = select.options;
+
+                if (options.length==0){
+                      all_params = window.location.href.substring(window.location.href.indexOf('?')+1);
+                      all_params_array = all_params.split('&');
+                      for (const [i, value] of all_params_array.entries()) {
+                          if (value.includes('{{ choice.lookup }}')){
+                              all_params_array.splice(i, 1);
+                              break;
+                          }
+                      }
+                      data='?'+all_params_array.join('&');
+                      window.location = window.location.pathname + data;
+                }else{
+                let len = options.length,
+                    data = '',
+                    baseData = options[0].value,
+                    i = 0,
+                    regex = /{{ spec.parameter_name }}=(\w+)&?/,
+                    selectedValues = [];
+
+                  while (i < len) {
+                      if (options[i].selected) {
+
+<!--                          let actual_val = regex.exec(options[i].value)[1];-->
+<!--                          let actual_val = options[i].value.split('=')[1];-->
+                          const urlParams = new URLSearchParams(options[i].value);
+                          const actual_val = urlParams.get("{{ spec.parameter_name }}");
+                          selectedValues.push(actual_val);
+                      }
+                      i += 1;
+                  }
+                  choice_lookup = '{{ spec.parameter_name }}';
+                  if (selectedValues.length > 0) {
+                      if (baseData.includes(choice_lookup)){
+
+                          all_params = baseData.substring(baseData.indexOf('?')+1);
+                          all_params_array = all_params.split('&');
+                          for (const [i, value] of all_params_array.entries()) {
+                              if (value.includes(choice_lookup)){
+                                  all_params_array[i]=choice_lookup+'='+selectedValues.join('%2C');
+                              }
+                          }
+                          data='?'+all_params_array.join('&');
+                      }else{
+                          data = baseData + '&{{ spec.parameter_name }}=' + selectedValues.join('%2C');
+                      }
+
+                  } else if (!baseData.includes(choice_lookup)) {
+                      data = baseData;
+                  } else {
+                      data = baseData.replace(new RegExp('[&?]'+choice_lookup+'=[^&]*'), '');
+                      if (data[data.length - 1] === '&') {
+                          data = data.slice(0, -1);
+                      }
+                  }
+                  window.location = window.location.pathname + data;
+                  }
+              });
+            });
+
+            $('.admin-filter-{{ title|cut:' ' }}-select option').on('mousedown', function(e) {
+                var $this = $(this),
+                    that = this,
+                    scroll = that.parentElement.scrollTop;
+
+                e.preventDefault();
+                $this.prop('selected', !$this.prop('selected'));
+
+                setTimeout(function() {
+                    that.parentElement.scrollTop = scroll;
+                }, 0);
+
+            return false;
+        });
+
+         $('.admin-filter-{{ title|cut:' ' }}-select').on('change', function() {
+            let selected = $('.admin-filter-{{ title|cut:' ' }}-select').find('option:selected');
+
+            if(selected.length > 1 && selected[0].label==='All')
+            {
+                selected[0].selected=false;
+            }
+        });
+
+        {% endwith %}
+    </script>
+{% endblock %}
