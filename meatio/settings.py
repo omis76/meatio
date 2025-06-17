@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'wallet',
     'dashboard',
     'orders',
+    'payments',
     'drf_yasg',
 ]
 
